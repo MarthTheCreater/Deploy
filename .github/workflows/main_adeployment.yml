@@ -3,6 +3,7 @@
 
 name: Build and deploy ASP.Net Core app to Azure Web App - Adeployment
 
+
 on:
   push:
     branches:
@@ -34,6 +35,15 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
+      - name: Update database
+        env: 
+          dbcs: ${{ secrets.DBCS }}
+        run: |
+          dotnet tool install --global dotnet-ef
+          cd server
+          dotnet tool restore
+          dotnet ef database update
+
   deploy:
     runs-on: windows-latest
     needs: build
@@ -46,6 +56,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: .net-app
+          
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
